@@ -1,29 +1,6 @@
 # File
 
-# 一、Java File System
-
-把java File 涵盖的大部分知识点走一遍~ 
-
-###### 1、File类
-
-###### 2、字符流与字节流
-
-- 字符流
-- 字节流
-- 二者常见子类
-
-###### 3、文件的压缩操作
-
-- 压缩
-- 解压缩
-
-###### 4、文件工具类
-
-可把常见的操作抽成工具，这里主要是基础工具类。可能有些安卓不适用，到时候需要看情况分开总结。
-
-###### 5、kotlin对io的扩展
-
-参考文章：https://juejin.cn/post/6844903704680726535
+# [一、Java File System](mds/1、java File System)
 
 # 二、Android File System
 
