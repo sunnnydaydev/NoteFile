@@ -8,6 +8,8 @@ import java.nio.charset.Charset
  */
 fun main() {
     // fileWriter()
+    fileWriterTest()
+
     // fileReader()
     // fileReader1()
     // fileReader2()
@@ -15,7 +17,7 @@ fun main() {
     // fileOutputStream()
     // fileOutputStream()
     // fileInputStream()
-    fileInputStream1()
+   // fileInputStream1()
    // bufferedInputStream()
 }
 
@@ -129,11 +131,24 @@ fun fileReader() {
     fr.close()
 }
 
+
+
+fun fileWriterTest() {
+    val file = File("/Users/zb/JavaFilePractice/fileWriterTest.txt")
+    if (!file.exists()) {
+        file.createNewFile()
+    }
+    val fw = FileWriter(file)
+    fw.write("12345",1,3) //234写进文件
+    fw.flush()
+    fw.close()
+}
+
 /**
  * FileWriter栗子：往磁盘写文本。
  * */
 fun fileWriter() {
-    val file = File("/Users/zennioptical/JavaFilePractice/1.txt")
+    val file = File("/Users/zb/JavaFilePractice/1.txt")
     if (!file.exists()) {
         file.createNewFile()
     }

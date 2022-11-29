@@ -112,7 +112,7 @@ IO流按照数据流的编码格式上可分为字符流和字节流
  * FileWriter栗子：往磁盘写文本。
  * */
 fun fileWriter() {
-    val file = File("/Users/zennioptical/JavaFilePractice/1.txt")
+    val file = File("/Users/zb/JavaFilePractice/1.txt")
     if (!file.exists()) {
         file.createNewFile()
     }
@@ -120,5 +120,28 @@ fun fileWriter() {
     fw.write("落霞与孤鹜齐飞，秋水与长天一色。")
     fw.flush()//把数据从内存缓冲区刷到磁盘
     fw.close()// 关闭输出流
+}
+```
+- 在IO流中数据是先被读写到内存缓冲区的，然后再被刷到磁盘上。因此当程序执行完read/write并不一定是真正的完成了读写操作，只有当缓冲区的数据被刷出去才代表真正的读写完毕。
+- 上述例子把flush、close注释了本地文件无数据。
+- 上述例子把flush注释了本地文件有数据，因为close时会触发flush。
+- 上述例子把close注释了本地有数据但流未关闭可能会引起内存泄漏。
+
+FileWriter这个类中只有构造，而且构造中都是对FileOutputStream类的封装，所以FileWriter得方法我们只需看其父类即可：
+
+![](https://gitee.com/sunnnydaydev/my-pictures/raw/master/github/file/writer.png)
+
+如图其他方法都很好理解，"偏移量"和"读取个数"可能不太明白，展示个例子：
+
+```kotlin
+fun fileWriterTest() {
+    val file = File("/Users/zb/JavaFilePractice/fileWriterTest.txt")
+    if (!file.exists()) {
+        file.createNewFile()
+    }
+    val fw = FileWriter(file)
+    fw.write("12345",1,3) //234写进文件
+    fw.flush()
+    fw.close()
 }
 ```
