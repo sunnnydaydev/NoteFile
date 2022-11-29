@@ -193,7 +193,7 @@ fun fileReader() {
 可见上述的读取是一个字符一个字符去循环读取的，读取效率很低下。其实read()方法提供了几个常见的重载，最终都是调用三个参数的
 重载方法：
 
-```kotlin
+```java
     public int read() throws IOException {
         char cb[] = new char[1];
         if (read(cb, 0, 1) == -1)
