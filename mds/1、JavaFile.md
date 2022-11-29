@@ -253,7 +253,7 @@ fun bufferedReader(){
 }
 ```
 - FileReader的read方法每次只能读取一个字符，效率不是很高，可以结合BufferedReader来使用，这个类提供了每次读取一行文本
-的方法，极大提升了读取效率。
+  的方法，极大提升了读取效率。
 - readLine方法读取一行文本返回String,读完时流结束就返回null。
 - 同样可以使用BufferedWriter来提升写的效率。
 
