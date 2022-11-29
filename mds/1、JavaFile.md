@@ -68,3 +68,57 @@ IO就像水流一样具有"流向"，输出就是流出，输入就是流入。�
         name:1.txt
          * */
 ```
+
+- public boolean renameTo(File dest)重命名文件
+```kotlin
+fun main() {
+    val file = File( "/Users/zennioptical/JavaFilePractice/1.txt")
+    val desc = File( "/Users/zennioptical/JavaFilePractice/2.txt")
+    file.renameTo(desc)
+    //JavaFilePractice目录下原有的1.txt会被重命名为2.txt
+}
+```
+
+```kotlin
+fun main() {
+    val file = File( "/Users/zennioptical/JavaFilePractice/1.txt")
+    val desc = File( "/Users/zennioptical/JavaFilePractice/Test/2.txt")
+    file.renameTo(desc)
+}
+```
+可以发现重命名操作也可以当做"移动"操作来使用。原本JavaFilePractice下的1.txt被移动到了JavaFilePractice/Test下且重命名了。
+
+# IO流
+
+IO流按照流向分类可以分为输入流和输出流
+
+- 往内存中读的叫做输入流
+- 从内存中往外写的叫做输出流
+- 所有输入流都是InputStream或Reader的子类
+- 所有输出流都是OutputStream或Writer的子类
+
+IO流按照数据流的编码格式上可分为字符流和字节流
+
+- InputStream、OutputStream及其子类为字节流
+- 字节流主要处理二进制数据，如读写音频、图片等比较常用，处理单元为1字节
+- 字符流主要处理字符数据。如配置文件、json等字符相关的读取
+
+![](https://gitee.com/sunnnydaydev/my-pictures/raw/master/github/file/file_io_chart.png)
+
+###### 1、FileWriter
+
+```kotlin
+/**
+ * FileWriter栗子：往磁盘写文本。
+ * */
+fun fileWriter() {
+    val file = File("/Users/zennioptical/JavaFilePractice/1.txt")
+    if (!file.exists()) {
+        file.createNewFile()
+    }
+    val fw = FileWriter(file)
+    fw.write("落霞与孤鹜齐飞，秋水与长天一色。")
+    fw.flush()//把数据从内存缓冲区刷到磁盘
+    fw.close()// 关闭输出流
+}
+```

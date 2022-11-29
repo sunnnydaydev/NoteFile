@@ -145,7 +145,7 @@ IO流按照数据流的编码格式上可分为字符流，字节流。
 
 （2）常见核心类
 
-![](![](https://gitee.com/sunnnydaydev/my-pictures/raw/master/github/file/file_io_chart.png))
+![](https://gitee.com/sunnnydaydev/my-pictures/raw/master/github/file/file_io_chart.png)
 
 
 ###### 3、IO流的常见使用
