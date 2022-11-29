@@ -1,6 +1,6 @@
 # File
 
-# [一、Java File](./mds/1、JavaFileSystem)
+# 一、Java File
 
 # 二、Android File
 
