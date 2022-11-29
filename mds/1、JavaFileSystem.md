@@ -31,7 +31,7 @@ fun main(){
 解就是跑在内存中的，"磁盘"可以是本计算机的硬盘、外部存储设备、其他电脑磁盘。
 
 IO就像水流一样具有"流向"，输出就是流出，输入就是流入。输入和输出相对于内存，从内存往磁盘写数据就是输出，从磁盘往内存读数
-据就是输入。先看张图结合理解下，具体的IO操作就要设计到下章节"字符流与字节流"的概念了。
+据就是输入。先看张图结合理解下，具体的IO操作就要涉及到下章节"字符流与字节流"的概念了。
 
 ![](https://gitee.com/sunnnydaydev/my-pictures/raw/master/github/file/file_io.png)
 
@@ -94,7 +94,7 @@ java 使用File类来描述文件，那么我们首先看下File类常见的api�
 - public boolean isHidden()是否是隐藏文件
 - public boolean renameTo(File dest)重命名文件
 
-看下文件的重命名操作,JavaFilePracticemu目录下原有的1.txt会被重命名为2.txt
+看下文件的重命名操作,JavaFilePractice目录下原有的1.txt会被重命名为2.txt
 ```kotlin
 fun main() {
     val file = File( "/Users/zennioptical/JavaFilePractice/1.txt")
@@ -126,19 +126,32 @@ IO流按照流向分类可以分为输入流，输出流。
 IO流按照数据流的编码格式上可分为字符流，字节流。
 
 - InputStream、OutputStream及其子类为字节流
-- 字节流主要处理二进制数据，如读写音频、图片等，处理单元为1字节。
-- 字符流主要处理字符数据。
+- 字节流主要处理二进制数据，如读写音频、图片等比较常用，处理单元为1字节。
+- 字符流主要处理字符数据。如配置文件、json等字符相关的读取。
 
 （2）既然有了字节流，为什么还要有字符流呢？
 
-（2）主要类图
+二者处理的对象不同，字节流更倾向于处理字节数据，字符流更倾向处理文本内容。
+
+其实直接使用字节流读取二进制文件（音频、视频等）文本文件（普通文本、配置文件、json等）都是可以的，但是文本文件内的字符就
+涉及到了编码，使用字节流读取时需要手动指定编码方式，否则一不留意就会出现读取内容乱码问题。因此为了方便java又提供了字符流
+用于方便专门读取字符。
+
+同时java为了满足一些情况还提供了字节流转字符流桥梁：
+
+- public InputStreamReader(InputStream in)//默认utf-8 编码，也可以使用两参数构造指定编码
+- public OutputStreamWriter(OutputStream out)//默认utf-8 编码，也可以使用两参数构造指定编码
 
 
-- 字符流
-- 字节流
-- 二者常见子类
+（2）常见核心类
 
-###### 3、文件的压缩操作
+![](![](https://gitee.com/sunnnydaydev/my-pictures/raw/master/github/file/file_io_chart.png))
+
+
+###### 3、IO流的常见使用
+
+
+###### 4、文件的压缩操作
 
 - 压缩
 - 解压缩
@@ -150,3 +163,9 @@ IO流按照数据流的编码格式上可分为字符流，字节流。
 ###### 5、kotlin对io的扩展
 
 参考文章：https://juejin.cn/post/6844903704680726535
+
+###### 参考
+
+[JAVA中使用字节输入流读取中文数据中文乱码问题解决方案](https://www.freesion.com/article/95201134507/)
+
+[编码方式有哪些_简述常用的编码方式](https://m.elecfans.com/article/1050823.html)
