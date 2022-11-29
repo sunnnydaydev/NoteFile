@@ -193,22 +193,7 @@ fun fileReader() {
 可见上述的读取是一个字符一个字符去循环读取的，读取效率很低下。其实read()方法提供了几个常见的重载，最终都是调用三个参数的
 重载方法：
 
-```java
-    public int read() throws IOException {
-        char cb[] = new char[1];
-        if (read(cb, 0, 1) == -1)
-            return -1;
-        else
-            return cb[0];
-    }
 
-public int read(char cbuf[]) throws IOException {
-    return read(cbuf, 0, cbuf.length);
-}
-
-abstract public int read(char cbuf[], int off, int len) throws IOException;
-
-```
 直接看三个参数的重载，read方法会把字符读取到一个cbuf中。
 
 off指的是读取偏移量，表示从目标文本的第几个字符开始读取，一般这个参数都穿0表示从第一个字符开始读。
@@ -288,20 +273,7 @@ fun fileInputStream() {
     fis.close()
 }
 ```
-```kotlin
-    // FileInputStream#read
-    public int read(byte b[], int off, int len) throws IOException {
-        // Android-added: close() check before I/O.
-        if (closed && len > 0) {
-            throw new IOException("Stream Closed");
-        }
-        // Android-added: Tracking of unbuffered I/O.
-        tracker.trackIo(len);
-        // Android-changed: Use IoBridge instead of calling native method.
-        //底层还是调用了4个参数的重载
-        return IoBridge.read(fd, b, off, len);
-    }
-```
+
 
 - 字节流与字符流很类似，字符流一般使用char数组读，字节流则使用byte数组读。
 - read的重载方法与字符流类似，若是直接使用read()则需要手动循环读每个字节然后强转为char
