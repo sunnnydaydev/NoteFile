@@ -1,8 +1,8 @@
 # File
 
-# [一、Java File System](mds/1、JavaFileSystem)
+# [一、Java File](/mds/1、JavaFileSystem)
 
-# 二、Android File System
+# 二、Android File
 
 ###### 1、内部环境外部环境的区分
 

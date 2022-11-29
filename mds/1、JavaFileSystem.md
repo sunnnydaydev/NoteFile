@@ -150,19 +150,202 @@ IO流按照数据流的编码格式上可分为字符流，字节流。
 
 ###### 3、IO流的常见使用
 
+(1) 字符流FileWriter
 
-###### 4、文件的压缩操作
+```kotlin
+/**
+ * FileWriter栗子：往磁盘写文本。
+ * */
+fun fileWriter() {
+    val file = File("/Users/zennioptical/JavaFilePractice/1.txt")
+    if (!file.exists()) {
+        file.createNewFile()
+    }
+    val fw = FileWriter(file)
+    fw.write("落霞与孤鹜齐飞，秋水与长天一色。")
+    fw.flush()//把数据从内存缓冲区刷到磁盘
+    fw.close()// 关闭输出流
+}
+```
+- 一般在IO流中数据是先被读写到内存缓冲区的，因此当我们读完或写完并不代表真正的读写完，当缓冲区的数据被刷出去才代表真正的完成。
+- 上述例子把flush、close注释了本地文件无数据。
+- 上述例子把flush注释了本地文件有数据，因为close时会刷下。
+- 上述例子把close注释了本地有数据，流未关闭可能会引起内存泄漏。
+
+
+（2）字符流FileReader
+
+```kotlin
+/**
+ * FileReader栗子：
+ * */
+fun fileReader() {
+    val file = File("/Users/zennioptical/JavaFilePractice/1.txt")
+    val fr = FileReader(file)
+    var index = fr.read() //读取一个字符，流结束时这个api返回-1
+    while (index != -1) {
+        print(index.toChar())
+        index= fr.read()
+    }
+    fr.close()
+}
+```
+可见上述的读取是一个字符一个字符去循环读取的，读取效率很低下。其实read()方法提供了几个常见的重载，最终都是调用三个参数的
+重载方法：
+
+```kotlin
+    public int read() throws IOException {
+        char cb[] = new char[1];
+        if (read(cb, 0, 1) == -1)
+            return -1;
+        else
+            return cb[0];
+    }
+
+public int read(char cbuf[]) throws IOException {
+    return read(cbuf, 0, cbuf.length);
+}
+
+abstract public int read(char cbuf[], int off, int len) throws IOException;
+
+```
+直接看三个参数的重载，read方法会把字符读取到一个cbuf中。
+
+off指的是读取偏移量，表示从目标文本的第几个字符开始读取，一般这个参数都穿0表示从第一个字符开始读。
+
+len指的是读取字符的最大数量，这个还真不好定义，一般我们都会申请一个足够大的数组，然后使用数组的长度read(char cbuf[])
+就是这样做的。
+
+
+```kotlin
+fun fileReader1(){
+    val file = File("/Users/zennioptical/JavaFilePractice/1.txt")
+    val fr = FileReader(file)
+    val buffer = CharArray(30)
+    fr.read(buffer)
+    buffer.forEach {
+       print("$it")
+    }
+    fr.close()
+}
+//落霞与孤鹜齐飞，秋水与长天一色。              
+```
+可见使用数组的读法可能我们控制不好字符的总数，导致申请多余的数组空间、读取多余的数据。
+
+但是这个方法是对三个参数的封装，当需求一致时可以使用这个方法来精简代码。
+
+（3）使用BufferedReader来提高字符读的效率
+
+```kotlin
+/**
+ * 使用BufferedReader来提升读取效率，这玩意提供了readLine方法每次可读一行。
+ * */
+fun bufferedReader(){
+    val file = File("/Users/zennioptical/JavaFilePractice/1.txt")
+    val fr = FileReader(file)
+    val bf = BufferedReader(fr)
+    var str = bf.readLine()
+    while (str!=null){
+        print(str)
+        str = bf.readLine()
+    }
+    fr.close()
+}
+```
+- FileReader的read方法每次只能读取一个字符，效率不是很高，可以结合BufferedReader来使用，这个类提供了每次读取一行文本
+的方法，极大提升了读取效率。
+- readLine方法读取一行文本返回String,读完时流结束就返回null。
+- 同样可以使用BufferedWriter来提升写的效率。
+
+（4）FileOutputStream
+
+```kotlin
+fun fileOutputStream(){
+    val file = File("/Users/zennioptical/JavaFilePractice/2.txt")
+    if (!file.exists()){
+        file.createNewFile()
+    }
+    val fos = FileOutputStream(file)
+    fos.write("滕王阁序".toByteArray(Charsets.UTF_8))
+    fos.close()
+}
+```
+- write提供了几个重载，但一般都是把内容转为字节数组。
+- 字符串可指定编码方式，默认是UTF_8。这个是方便读取时解码不至于乱码。
+
+（5）FileInputStream
+
+```kotlin
+fun fileInputStream() {
+    val file = File("/Users/zennioptical/JavaFilePractice/2.txt")
+    val fis = FileInputStream(file)
+    //注意这里申请的大小可为文件的大小，因为文件的大小就是字节总数
+    val byteArray = ByteArray(file.length().toInt())
+    fis.read(byteArray)
+    //通过String构造来转为字符串,并通过UTF_8方式来解码
+    val string = String(byteArray, Charsets.UTF_8)
+    println(string)
+    fis.close()
+}
+```
+```kotlin
+    // FileInputStream#read
+    public int read(byte b[], int off, int len) throws IOException {
+        // Android-added: close() check before I/O.
+        if (closed && len > 0) {
+            throw new IOException("Stream Closed");
+        }
+        // Android-added: Tracking of unbuffered I/O.
+        tracker.trackIo(len);
+        // Android-changed: Use IoBridge instead of calling native method.
+        //底层还是调用了4个参数的重载
+        return IoBridge.read(fd, b, off, len);
+    }
+```
+
+- 字节流与字符流很类似，字符流一般使用char数组读，字节流则使用byte数组读。
+- read的重载方法与字符流类似，若是直接使用read()则需要手动循环读每个字节然后强转为char
+- read的重载方法与字符流类似，若是直接使用4个参数的重载则需要一个缓冲数组，然后手写实现细节。
+- 这里直接使用了一个参数的重载，传递字节数组。底层还是三个参数重载的实现。
+
+此方式有个弊端，一次申请的内存过大，我们可以申请小一点字节数组来循环读取
+
+```kotlin
+fun fileInputStream1() {
+    val file = File("/Users/zennioptical/JavaFilePractice/2.txt")
+    val fis = FileInputStream(file)
+    val byteArray = ByteArray(1024)//读取字节个数由我们控制
+    //读取byteArray size个字节到字节数组中。流中小于size时则以真实个数为主。
+    // 返回值为读取个数
+    var data = fis.read(byteArray) 
+    while (data != -1) {
+        println("data:$data")
+        val string = String(byteArray, 0, data)
+        println(string)
+        data = fis.read(byteArray)
+    }
+    fis.close()
+}
+```
+
+（5）使用BufferedInputStream来提高字节读的效率
+
+
+
+
+###### 4、文件的压缩解压操作
 
 - 压缩
 - 解压缩
 
-###### 4、文件工具类
-
-可把常见的操作抽成工具，这里主要是基础工具类。可能有些安卓不适用，到时候需要看情况分开总结。
-
 ###### 5、kotlin对io的扩展
 
 参考文章：https://juejin.cn/post/6844903704680726535
+
+
+###### 6、文件工具类
+
+可把常见的操作抽成工具，这里主要是基础工具类。可能有些安卓不适用，到时候需要看情况分开总结。
 
 ###### 参考
 
