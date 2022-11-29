@@ -127,7 +127,7 @@ fun fileWriter() {
 - 上述例子把flush注释了本地文件有数据，因为close时会触发flush。
 - 上述例子把close注释了本地有数据但流未关闭可能会引起内存泄漏。
 
-FileWriter这个类中只有构造，而且构造中都是对FileOutputStream类的封装，所以FileWriter得方法我们只需看其父类即可：
+FileWriter这个类中只有构造，直接父类OutputStreamWriter也仅是重写了一些方法，我们直接看其父类顶级父类Writer：
 
 ![](https://gitee.com/sunnnydaydev/my-pictures/raw/master/github/file/writer.png)
 
@@ -145,3 +145,26 @@ fun fileWriterTest() {
     fw.close()
 }
 ```
+
+###### 2、FileReader
+
+```kotlin
+/**
+ * FileReader栗子：
+ * */
+fun fileReader() {
+    val file = File("/Users/zb/JavaFilePractice/1.txt")
+    val fr = FileReader(file)
+    var index = fr.read() 
+    while (index != -1) {
+        print(index.toChar())
+        index= fr.read()
+    }
+    fr.close()
+}
+```
+read()方法:从字符输入流读取一个字符，返回当前读取的字符。当输入流无数据时read()方法返回-1。这里需要再次说明下流的概念，否则上面的循环还不好理解，看图：
+
+![](https://gitee.com/sunnnydaydev/my-pictures/raw/master/github/file/stream.png)
+
+这里应该就豁然开朗了，每次都"读走"首个数据，直到流中无数据此时read()返回-1

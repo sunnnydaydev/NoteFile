@@ -8,9 +8,9 @@ import java.nio.charset.Charset
  */
 fun main() {
     // fileWriter()
-    fileWriterTest()
+    //fileWriterTest()
 
-    // fileReader()
+     fileReader()
     // fileReader1()
     // fileReader2()
     // bufferedReader()
@@ -121,7 +121,7 @@ fun fileReader1() {
  * FileReader栗子：
  * */
 fun fileReader() {
-    val file = File("/Users/zennioptical/JavaFilePractice/1.txt")
+    val file = File("/Users/zb/JavaFilePractice/1.txt")
     val fr = FileReader(file)
     var index = fr.read() //读取一个字符，流结束时这个api返回-1
     while (index != -1) {
