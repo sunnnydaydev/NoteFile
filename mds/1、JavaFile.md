@@ -252,20 +252,16 @@ fun fileReader2() {
         print(String(buffer, 0, count))
         count = fr.read(buffer)
     }
-
 /**
-
     var count = fr.read(buffer)
     while (count != -1) {
     print(String(buffer, 0, count))
     count = fr.read(buffer)
     }
-
     错误写法，把上面这段注释了只使用下面的：
     fr.read(buffer)
     println(String(buffer))
-    结果：落霞与孤鹜齐飞，秋水与长天一色。
-
+    结果：落霞与孤鹜齐飞，秋水与长天一色。NULNULNUL（会有一些奇怪的nul特殊字符，由于粘在这里导致github readme解析失败，这我就手打出来了）
     这种方式读取的，受申请数组空间影响：
     1、数组空间较小，读取数据不全
     2、数组空间过大，浪费空间且多余的空间都是空数据，遍历char数组就会遍历出空字符。
