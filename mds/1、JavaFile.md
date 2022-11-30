@@ -242,6 +242,7 @@ fun fileReader1() {
 再看看两个参数的：
 
 ```kotlin
+
 fun fileReader2() {
     val file = File("/Users/zb/JavaFilePractice/1.txt")
     val fr = FileReader(file)
@@ -263,7 +264,7 @@ fun fileReader2() {
     错误写法，把上面这段注释了只使用下面的：
     fr.read(buffer)
     println(String(buffer))
-    结果：落霞与孤鹜齐飞，秋水与长天一色。              
+    结果：落霞与孤鹜齐飞，秋水与长天一色。
 
     这种方式读取的，受申请数组空间影响：
     1、数组空间较小，读取数据不全
