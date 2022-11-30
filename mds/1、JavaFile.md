@@ -187,7 +187,7 @@ read()方法:从字符输入流读取一个字符，返回当前读取的字符�
 
 这里应该就豁然开朗了，每次都"读走"首个数据，直到流中无数据此时read()返回-1
 
-read还有两个重载：
+read还有两个重载,首先看看三个参数的
 
 ```kotlin
 /**
@@ -235,6 +235,47 @@ fun fileReader1() {
         print(String(buffer, 0, count))
         count = fr.read(buffer)
     }
+    fr.close()
+}
+```
+```kotlin
+/**
+源码：
+public int read(char cbuf[]) throws IOException {
+return read(cbuf, 0, cbuf.length);
+}
+可见底层直接调用了三个参数的方法，每次读取的个数为数组的大小。
+
+ * */
+fun fileReader2() {
+    val file = File("/Users/zb/JavaFilePractice/1.txt")
+    val fr = FileReader(file)
+    val buffer = CharArray(30)
+    var count = fr.read(buffer)
+    while (count != -1) {
+        print(String(buffer, 0, count))
+        count = fr.read(buffer)
+    }
+
+    /**
+     *
+    var count = fr.read(buffer)
+    while (count != -1) {
+    print(String(buffer, 0, count))
+    count = fr.read(buffer)
+    }
+
+    错误写法，把上面这段注释了只使用下面的：
+    fr.read(buffer)
+    println(String(buffer))
+    结果：落霞与孤鹜齐飞，秋水与长天一色。              
+
+    这种方式读取的，受申请数组空间影响：
+    1、数组空间较小，读取数据不全
+    2、数组空间过大，浪费空间且多余的空间都是空数据，遍历char数组就会遍历出空字符。
+
+    不建议写法，使用这种写法需要字符数组判空处理，当然我们也不知道这个是否
+     * */
     fr.close()
 }
 ```
