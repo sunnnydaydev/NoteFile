@@ -238,6 +238,9 @@ fun fileReader1() {
     fr.close()
 }
 ```
+
+再看看两个参数的： 
+
 ```kotlin
 /**
 源码：
