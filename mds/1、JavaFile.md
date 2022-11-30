@@ -252,8 +252,8 @@ fun fileReader2() {
         count = fr.read(buffer)
     }
 
-    /**
-     *
+/**
+
     var count = fr.read(buffer)
     while (count != -1) {
     print(String(buffer, 0, count))
@@ -270,7 +270,7 @@ fun fileReader2() {
     2、数组空间过大，浪费空间且多余的空间都是空数据，遍历char数组就会遍历出空字符。
 
     不建议写法，使用这种写法需要字符数组判空处理，当然我们也不知道这个是否
-     * */
+* */
     fr.close()
 }
 ```
