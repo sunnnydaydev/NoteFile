@@ -32,7 +32,7 @@ IO就像水流一样具有"流向"，输出就是流出，输入就是流入。�
 
 ![](https://gitee.com/sunnnydaydev/my-pictures/raw/master/github/file/file_io.png)
 
-###### 2、File类
+###### 2、File#Method
 
 - public File(String pathname):给定文件路径生成一个file类。
 - public File(String parent, String child):给定文件的parent路径、child路径，生成一个File类。
@@ -87,6 +87,21 @@ fun main() {
 }
 ```
 可以发现重命名操作也可以当做"移动"操作来使用。原本JavaFilePractice下的1.txt被移动到了JavaFilePractice/Test下且重命名了。
+
+还有一些常用的方法如下：
+
+- public boolean exists()文件是否存在
+- boolean isFile()是否是个普通的文件
+- public boolean isDirectory()是否是目录文件
+- public String getName()获取文件名（带后缀）
+- public String getAbsolutePath()获取文件绝对路径
+- public long length()获取文件大小（单位字节）
+- public boolean createNewFile()创建文件（创建失败报错）
+- public boolean delete()删除文件
+- public boolean mkdir()创建文件夹（父文件夹不存在时创建失败返回false）
+- public boolean mkdirs()创建文件夹（父文件夹不存在时会同时创建父文件夹）
+- public File[] listFiles()返回一个文件数组
+- public boolean isHidden()是否是隐藏文件
 
 # IO流
 
@@ -150,7 +165,10 @@ fun fileWriterTest() {
 
 ```kotlin
 /**
- * FileReader栗子：
+ * FileReader栗子
+ * 1、方法简介
+ * public int read() throws IOException：
+ * 从流中读取1个字符，返回这个字符代表的int类型值。因此我们想要得到字符一般需要自己再强转一下。
  * */
 fun fileReader() {
     val file = File("/Users/zb/JavaFilePractice/1.txt")
@@ -168,3 +186,98 @@ read()方法:从字符输入流读取一个字符，返回当前读取的字符�
 ![](https://gitee.com/sunnnydaydev/my-pictures/raw/master/github/file/stream.png)
 
 这里应该就豁然开朗了，每次都"读走"首个数据，直到流中无数据此时read()返回-1
+
+read还有两个重载：
+
+```kotlin
+/**
+方法：
+public int read(char cbuf[], int offset, int length) throws IOException {}
+
+功能：
+Reads characters into a portion of an array.
+
+参数：
+cbuf – Destination buffer
+
+offset – Offset at which to start storing characters
+
+length – Maximum number of characters to read
+
+返回值：
+The number of characters read, or -1 if the end of the stream has been reached
+-------------------------------------------------------------------------------------------------
+
+点评：效率稍微比read() 好点，每次能够读取多个字符数据。
+
+思考：BufferReader 每次读取一行数据， 使用read每次可以读取指定数据，当指定的数据大于行数的字符时 读取的效率是否比其高？
+
+ * */
+fun fileReader1() {
+    val file = File("/Users/zb/JavaFilePractice/1.txt")
+    val fr = FileReader(file)
+    val buffer = CharArray(10)
+    /**
+     * 注意这里第三个参数length：理论上每次从流中读取length个数据，read每次的返回值就是length，当流中数据小于length时
+     * 此时返回值就是剩余字节个数。
+     *
+     * 举个例子：如上我们申请的数组空间为10，每次从流中读取10个字符，read每次返回10。读取了n-1此后流中还剩3字符，则
+     * 第n次read的结果是3
+     *
+     * */
+    var count = fr.read(buffer,0,buffer.size)
+    while (count != -1) {
+        /***
+         * 注意写法，这里第三个参数为count，fileReader2栗子中相当于传递了buffer.size因此出现读取多余的空格。
+         * 这里若是传递buffer.size出现的结果也会很奇怪，多了几个字符。
+         * 若传buffer.size得到的结果是：落霞与孤鹜齐飞，秋水与长天一色。飞，秋水
+         * */
+        print(String(buffer, 0, count))
+        count = fr.read(buffer)
+    }
+    fr.close()
+}
+```
+
+```kotlin
+/**
+源码：
+public int read(char cbuf[]) throws IOException {
+return read(cbuf, 0, cbuf.length);
+}
+可见底层直接调用了三个参数的方法，每次读取的个数为数组的大小。
+
+ * */
+fun fileReader2() {
+    val file = File("/Users/zb/JavaFilePractice/1.txt")
+    val fr = FileReader(file)
+    val buffer = CharArray(30)
+    var count = fr.read(buffer)
+    while (count != -1) {
+        print(String(buffer, 0, count))
+        count = fr.read(buffer)
+    }
+    
+    /**
+     *
+    var count = fr.read(buffer)
+    while (count != -1) {
+    print(String(buffer, 0, count))
+    count = fr.read(buffer)
+    }
+
+    错误写法，把上面这段注释了只使用下面的：
+    fr.read(buffer)
+    println(String(buffer))
+    结果：落霞与孤鹜齐飞，秋水与长天一色。              
+
+    这种方式读取的，受申请数组空间影响：
+    1、数组空间较小，读取数据不全
+    2、数组空间过大，浪费空间且多余的空间都是空数据，遍历char数组就会遍历出空字符。
+
+    不建议写法，使用这种写法需要字符数组判空处理，当然我们也不知道这个是否
+     * */
+    fr.close()
+}
+```
+
