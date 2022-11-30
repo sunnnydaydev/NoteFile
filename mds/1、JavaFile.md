@@ -187,7 +187,7 @@ read()方法:从字符输入流读取一个字符，返回当前读取的字符�
 
 这里应该就豁然开朗了，每次都"读走"首个数据，直到流中无数据此时read()返回-1
 
-read还有两个重载,首先看看三个参数的
+read还有两个重载,首先看看三个参数的：
 
 ```kotlin
 /**
@@ -239,6 +239,33 @@ fun fileReader1() {
 }
 ```
 
-再看看两个参数的： 
+再看看两个参数的：
+
+```kotlin
+fun fileReader1() {
+    val file = File("/Users/zb/JavaFilePractice/1.txt")
+    val fr = FileReader(file)
+    val buffer = CharArray(10)
+    /**
+     * 注意这里第三个参数length：理论上每次从流中读取length个数据，read每次的返回值就是length，当流中数据小于length时
+     * 此时返回值就是剩余字节个数。
+     *
+     * 举个例子：如上我们申请的数组空间为10，每次从流中读取10个字符，read每次返回10。读取了n-1此后流中还剩3字符，则
+     * 第n次read的结果是3
+     *
+     * */
+    var count = fr.read(buffer,0,buffer.size)
+    while (count != -1) {
+        /***
+         * 注意写法，这里第三个参数为count，fileReader2栗子中相当于传递了buffer.size因此出现读取多余的空格。
+         * 这里若是传递buffer.size出现的结果也会很奇怪，多了几个字符。
+         * 若传buffer.size得到的结果是：落霞与孤鹜齐飞，秋水与长天一色。飞，秋水
+         * */
+        print(String(buffer, 0, count))
+        count = fr.read(buffer)
+    }
+    fr.close()
+}
+```
 
 
