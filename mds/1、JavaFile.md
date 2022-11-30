@@ -190,6 +190,29 @@ read()方法:从字符输入流读取一个字符，返回当前读取的字符�
 read还有两个重载：
 
 ```kotlin
+/**
+方法：
+public int read(char cbuf[], int offset, int length) throws IOException {}
+
+功能：
+Reads characters into a portion of an array.
+
+参数：
+cbuf – Destination buffer
+
+offset – Offset at which to start storing characters
+
+length – Maximum number of characters to read
+
+返回值：
+The number of characters read, or -1 if the end of the stream has been reached
+-------------------------------------------------------------------------------------------------
+
+点评：效率稍微比read() 好点，每次能够读取多个字符数据。
+
+思考：BufferReader 每次读取一行数据， 使用read每次可以读取指定数据，当指定的数据大于行数的字符时 读取的效率是否比其高？
+
+ * */
 fun fileReader1() {
     val file = File("/Users/zb/JavaFilePractice/1.txt")
     val fr = FileReader(file)
