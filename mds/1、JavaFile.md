@@ -238,11 +238,10 @@ fun fileReader1() {
 
 ```kotlin
 /**
-源码：
 public int read(char cbuf[]) throws IOException {
 return read(cbuf, 0, cbuf.length);
 }
-可见底层直接调用了三个参数的方法，每次往buffer数组中读数组size个数据。
+可见底层直接调用了三个参数的方法，每次往buffer数组中读数组length个数据。
  * */
 fun fileReader2() {
     val file = File("/Users/zb/JavaFilePractice/1.txt")
@@ -286,7 +285,7 @@ fun fileReader2() {
 当数组很小时需要多次读取流中的数据，流中的数据也会不断覆盖填充数组，当最后一次填充数组时，数组中就可能存在上次遗留的数据。要是取数组的全部
 数据就会出现奇怪的现象，把上次遗留的数据也一并读了过来。
 
-当数组很大时就一次把流中的数据读到了数组中，切数组还有空余，当取数据时取数组的全部字符，那么数组中无效的剩余空间也会被读取，就会出现NUL这样特殊字符。
+当数组很大时就一次把流中的数据读到了数组中，且数组还有空余，当取数据时取数组的全部字符，那么数组中无效的剩余空间也会被读取，就会出现NUL这样特殊字符。
 
 ###### 3、FileOutputStream
 
@@ -303,6 +302,7 @@ fun fileReader2() {
  *     public void write(int b) throws IOException：把int强转byte写进文件
  *     public void write(byte b[]) throws IOException：往文件写字节数组（数组size个字节写入文件）
  *     public void write(byte b[], int off, int len) throws IOException：往文件写字节数组。
+ *     
  *     可见这三个方法与FileWriter的类似，只是FileWriter是字符数组，这里是字节数组。
  *     
  * 栗子如下：
@@ -351,6 +351,8 @@ fun fileInputStream() {
     val fis = FileInputStream(file)
     val byteArray = ByteArray(1024)
     var byteCount = fis.read(byteArray,0,byteCount.size) //返回值为一次性读取的字节个数
+    // 一般这样写即可，和上述写法一样，但看着精简点。
+   // var byteCount = fis.read(byteArray)
     while (byteCount != -1) {
         val string =
             String(byteArray, 0, byteCount, Charsets.UTF_8)//若这为Charsets.ISO_8859_1 写时编码为utf-8 结果则乱码。
@@ -383,26 +385,63 @@ fun fileInputStream1() {
 
 ###### 5、缓冲类
 
-###### 6、缓冲与非缓冲效率对比
+Java针对字符流字节流的读取，还提供了缓冲类：
 
-###### 7、kt对文件的扩展
+（1）BufferedWriter
 
-BufferedReader
+基于Writer上几个write方法做了重写使方法更加高效读取。
+
+使用步骤和Writer#write一致
+
+（2）BufferedReader
+
+基于Reader上几个read方法做了重写使方法更加高效读取。
+
+使用步骤和Reader#read一致
+
+提供了readLine方法，一次可以读取一行字符。
+
+
+（3）BufferedOutputStream
+
+基于OutputStream上几个write方法做了重写使方法更加高效读取。
+
+使用步骤和FileOutputStream#write一致
+
+（4）BufferedInputStream
+
+基于InputStream上几个read方法做了重写使方法更加高效读取。
+
+使用步骤和FileInputStream#read一致
+
+（5）栗子
 
 ```kotlin
 /**
- * 1、使用BufferedReader来提升读取效率，这玩意提供了readLine方法每次可读一行。
- * 2、这个类还提供了一些列read重载，read内部带有缓冲功能。
- * 收获：
- * 1、BufferedReader 也是继承自Reader的在Reader的基础上提供了readLine方法
- * 2、kt的ReadWrite.kt 文件有很多扩展方法可以快速实现文件读写，如读文件直接readText读完
- * 3、kotlin 有个扩展方法use，任意继承自Closeable的类都可以使用，这个扩展会在合适时机自动帮助我们调用close。
+ * 使用BufferedInputStream来读取字节数据
+ * */
+fun bufferedInputStream() {
+    val file = File("/Users/zb/JavaFilePractice/2.txt")
+    val fis = FileInputStream(file)
+    val bis = BufferedInputStream(fis)//接受一个InputStream对象
+    val buf = ByteArray(1024)
+    var dataCount = bis.read(buf)
+    while (dataCount!=-1){
+        print(String(buf,0,dataCount))
+        dataCount = bis.read(buf)
+    }
+}
+```
+
+```kotlin
+/**
+ * BufferedReader
  * */
 fun bufferedReader() {
     val file = File("/Users/zb/JavaFilePractice/1.txt")
     val fr = FileReader(file)
-    val bf = BufferedReader(fr)
-    var str = bf.readLine()
+    val bf = BufferedReader(fr)//接受一个Read对象
+    var str = bf.readLine() // 一次读取一行。这里使用其他的read方法也行下发可参考FileReader
     while (str != null) {
         print(str)
         str = bf.readLine()
@@ -410,6 +449,93 @@ fun bufferedReader() {
     fr.close()
 }
 ```
+
+###### 6、缓冲与非缓冲效率对比
+
+```kotlin
+/**
+ * 目标：测试使用缓冲与不使用缓冲读的效率对比.
+ * 栗子：使用普通的FileInputStream，FileOutputStream进行读写。
+ * 测试结果：1.pptx 文件在磁盘占10.7M,copy一份耗时66ms
+ * */
+fun testCommonRead() {
+    val src = File("/Users/zb/JavaFilePractice/1.pptx")
+    val dest = File("/Users/zb/JavaFilePractice/common.pptx")
+    if (!dest.exists()) {
+        dest.createNewFile()
+    }
+    // copy 操作
+    val ins = FileInputStream(src)
+    val ops = FileOutputStream(dest)
+
+    val buffer = ByteArray(1024)
+    var count = ins.read(buffer)
+    val startTime = System.currentTimeMillis()
+    while (count != -1) {
+        println("读取中...")
+        ops.write(buffer, 0, count)
+        count = ins.read(buffer)
+    }
+    ins.close()
+    ops.close()
+    val endTime = System.currentTimeMillis()
+    println("读取完毕->耗时:${endTime-startTime}ms")
+}
+```
+
+```kotlin
+/**
+ * 目标：测试使用缓冲与不使用缓冲读的效率对比.
+ * 栗子：使用BufferedInputStream，BufferedOutputStream进行读写。
+ * 测试结果：1.pptx 文件在磁盘占10.7M,copy一份耗时39ms
+ * */
+fun  testBufferReader(){
+    val src = File("/Users/zennioptical/JavaFilePractice/1.pptx")
+    val dest = File("/Users/zennioptical/JavaFilePractice/buffer.pptx")
+    if (!dest.exists()) {
+        dest.createNewFile()
+    }
+    // copy 操作
+    val ins = FileInputStream(src)
+    val ops = FileOutputStream(dest)
+
+    val bins = BufferedInputStream(ins)
+    val bops = BufferedOutputStream(ops)
+
+    val buffer = ByteArray(1024)
+    var count = bins.read(buffer)
+    val startTime = System.currentTimeMillis()
+    while (count != -1) {
+        println("读取中...")
+        bops.write(buffer, 0, count)
+        count = bins.read(buffer)
+    }
+    //注意关闭顺序：依赖的先关闭，先打开的后关闭
+    bops.close()
+    bins.close()
+    ops.close()
+    ins.close()
+
+    val endTime = System.currentTimeMillis()
+    println("读取完毕->耗时:${endTime-startTime}ms")
+}
+```
+可见缓冲类的效率还是比非缓冲类的效率高的，同时我们可以提升数组的大小，来一次多读取点数据，这样也能提升效率。如吧字节数组的大小改为1024*10
+使用缓冲类耗时17ms，时间更快了点。
+
+###### 7、kt对文件的扩展
+
+```kotlin
+/**
+ * 使用BufferedReader来提升读取效率，这玩意提供了readLine方法每次可读一行。
+ * 收获：
+ * 1、BufferedReader 也是继承自Reader的在Reader的基础上提供了readLine方法
+ * 2、kt的ReadWrite.kt 文件有很多扩展方法可以快速实现文件读写，如读文件直接readText读完
+ * 3、kotlin 有个扩展方法use，任意继承自Closeable的类都可以使用，这个扩展会在合适时机自动帮助我们调用close。
+ * */
+```
+
+
 
 ###### 6、BufferedInputStream
 
