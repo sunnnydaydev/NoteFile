@@ -307,6 +307,8 @@ fun fileReader2() {
  *     
  * 栗子如下：
  *    使用输出流往本地写个文本文件。
+ * 
+ * 特点：当文件不存在时FileOutputStream会创建文件，所以你会发现下文的 file.createNewFile()其实是多余的。
  * */
 fun fileOutputStream() {
     val file = File("/Users/zb/JavaFilePractice/2.txt")
@@ -554,23 +556,37 @@ OutputStreamWriter
 - kotlin还对网络（URL类）进行了扩展可以直接通过readText读取网页文本，通过readBytes拿到网络文件的字节数组。
 
 
-文本的读写
+常见的File#write相关的扩展方法如下：
 
 ```kotlin
-
-    // 直接写入本地，不存在文件时创建一个，存在时覆盖内容。
-    val file = File("/Users/zennioptical/JavaFilePractice/ktx.txt")
-    file.writeText("hello hello")
-    
-    //读取方式1：直接读全部内容
-    val text = file.readText()
-    println("读取内容:$text")
-    // 读取方式2：一行一行读取
-    file.readLines().forEach {
-        println(it)
-    }
+    val file = File("/Users/zb/JavaFilePractice/ktx.txt")
+    //写/追加文本
+    file.writeText("writeText",Charsets.UTF_8)
+    file.appendText("appendText",Charsets.UTF_8)
+    //写/追加字符串
+    file.writeBytes("writeBytes".toByteArray())
+    file.appendBytes("appendBytes".toByteArray())
 ```
 
+常见的File#read相关的扩展方法如下：
+
+```kotlin
+    
+    val file = File("/Users/zb/JavaFilePractice/1.txt")
+    // readText直接返回一个String类型值，这个string就是要读的全部内容
+    val text1 = file.readText()
+    val sb = StringBuilder()
+    // readLines返回值为List<String>
+    file.readLines().forEach {
+        sb.append(it)
+    }
+    val text2 = sb.toString()
+    
+    // 直接返回一个字节数组
+    val byteArray = file.readBytes()
+```
+
+网络资源的读取kt也做了拓展
 
 ```kotlin
     //直接读取百度网页text
@@ -580,7 +596,31 @@ OutputStreamWriter
     File("/Users/zb/JavaFilePractice/1.png").write(byteArray)
 ```
 
-参考：https://blog.csdn.net/ldxlz224/article/details/97495232
+这里就不一一列举了，想要了解更多可以去kotlin.io包下查看，以copy file的练习做个结尾吧~
+
+```kotlin
+fun fileCopy(src: File, des: File) {
+    src.let {
+        if (it.exists()) {
+            if (src.absolutePath == des.absolutePath){
+                println("under same dir，same file name. copy failed ！")
+            }else{
+                des.writeBytes(it.readBytes())
+                println("copy success！")
+            }
+        } else {
+            throw IllegalArgumentException("src file not found")
+        }
+    }
+}
+
+fun main(){
+    val pathSrc = "/Users/zb/JavaFilePractice/1.txt"
+    val pathDes = "/Users/zb/JavaFilePractice/2.txt"
+    fileCopy(File(pathSrc), File(pathDes))
+}
+```
+
 
 
 
