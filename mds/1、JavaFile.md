@@ -196,27 +196,19 @@ read还有两个重载,首先看看三个参数的：
     public int read(char cbuf[], int offset, int length) throws IOException {}
 
 功能：
-    Reads characters into a portion of an array.
+    把字符从流中读到cbuf数组中
 
 参数：
-    cbuf – Destination buffer
-
-    offset – Offset at which to start storing characters
-
-    length – Maximum number of characters to read
-
+      cbuf    数组
+    offset    偏移量，从字符流中读取的字符放入数组的偏移位置，一般从index 0 开始放。
+    length    每次从流中读取字符的最大个数
 返回值：
-
-     The number of characters read, or -1 if the end of the stream has been reached
-
+     真实读取到的字符个数，若流结束了就返回-1
 注意：
-
-1、read()、read(char cbuf[])方法的底层都是使用到了这个方法来进行读取的。
-   三者的差别：（1）一次性读取的字符个数不同
-             （2）返回值不同
-
-思考：BufferReader 每次读取一行数据， 使用read每次可以读取指定数据，当指定的数据大于行数的字符时 读取的效率是否比其高？
-
+    read()、read(char cbuf[])方法的底层都是使用到了这个方法来进行读取的。
+    三者的差别：（1）一次性读取的字符个数不同
+              （2）返回值不同
+ 
  * */
 fun fileReader1() {
     val file = File("/Users/zb/JavaFilePractice/1.txt")
@@ -227,7 +219,6 @@ fun fileReader1() {
      * 此时返回值就是剩余字节个数。
      *
      * 举个例子：如上我们申请的数组空间为10，每次从流中读取10个字符，read每次返回10。读取了n-1此后流中还剩3字符，则第n次read的结果是3
-     * 
      *
      * */
     var count = fr.read(buffer,0,buffer.size)
@@ -243,7 +234,7 @@ fun fileReader1() {
 }
 ```
 
-再看看两个参数的：
+接下来继续看两个参数的read方法：
 
 ```kotlin
 /**
@@ -285,6 +276,17 @@ fun fileReader2() {
     fr.close()
 }
 ```
+
+来看张图理解下read读取的奇怪现象背后原理：
+
+![](https://gitee.com/sunnnydaydev/my-pictures/raw/master/github/file/read_flow.png)
+
+可见：
+
+当数组很小时需要多次读取流中的数据，流中的数据也会不断覆盖填充数组，当最后一次填充数组时，数组中就可能存在上次遗留的数据。要是取数组的全部
+数据就会出现奇怪的现象，把上次遗留的数据也一并读了过来。
+
+当数组很大时就一次把流中的数据读到了数组中，切数组还有空余，当取数据时取数组的全部字符，那么数组中无效的剩余空间也会被读取，就会出现NUL这样特殊字符。
 
 ###### 3、FileOutputStream
 
@@ -331,10 +333,11 @@ fun fileOutputStream() {
  *    
  * read方法: 
  *     public int read() throws IOException:从字节流中读取首个字节数据，返回这个字节代表的int值。
- *     public int read(byte b[]) throws IOException:从字节流中读取b.length个字节，返回读取到的字节数目。
- *     public int read(byte b[], int off, int len) throws IOException：从字节流中读取len个字节，返回读取到的字节数目。
- * 
- * 注意：三个read方法与FileReader的read方法很类似，只是这里为字节数组，FileReader的是字符数组。
+ *     public int read(byte b[]) throws IOException:从字节流中读取b.length个字节到b数组中，返回读取到的字节数目。
+ *     public int read(byte b[], int off, int len) throws IOException：从字节流中读取len个字节到b数组中，返回读取到的字节数目。
+ * 注意：
+ *     1、三个read方法与FileReader的read方法很类似，只是这里为字节数组，FileReader的是字符数组。
+ *     2、read读取的个数并不一定是指定的len，当流中数据小于len时，read读取的个数就是流中剩余的个数。
  * 
  * 收获：
  *     1、乱码问题原因，创建文件写字符内容使用的编码方式与读取文件解析字符内容使用的编码方式不一致。
@@ -347,7 +350,7 @@ fun fileInputStream() {
     val file = File("/Users/zb/JavaFilePractice/2.txt")
     val fis = FileInputStream(file)
     val byteArray = ByteArray(1024)
-    var byteCount = fis.read(byteArray) //返回值为一次性读取的字节个数
+    var byteCount = fis.read(byteArray,0,byteCount.size) //返回值为一次性读取的字节个数
     while (byteCount != -1) {
         val string =
             String(byteArray, 0, byteCount, Charsets.UTF_8)//若这为Charsets.ISO_8859_1 写时编码为utf-8 结果则乱码。
