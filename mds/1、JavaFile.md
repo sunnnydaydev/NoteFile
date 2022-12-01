@@ -387,34 +387,27 @@ fun fileInputStream1() {
 
 Java针对字符流字节流的读取，还提供了缓冲类：
 
-（1）BufferedWriter
+BufferedWriter
+- 基于Writer上几个write方法做了重写使方法更加高效读取。
+- 使用步骤和Writer#write一致
 
-基于Writer上几个write方法做了重写使方法更加高效读取。
+BufferedReader
 
-使用步骤和Writer#write一致
+- 基于Reader上几个read方法做了重写使方法更加高效读取。
+- 使用步骤和Reader#read一致
+- 提供了readLine方法，一次可以读取一行字符。
 
-（2）BufferedReader
+BufferedOutputStream
 
-基于Reader上几个read方法做了重写使方法更加高效读取。
+- 基于OutputStream上几个write方法做了重写使方法更加高效读取。
+- 使用步骤和FileOutputStream#write一致
 
-使用步骤和Reader#read一致
+BufferedInputStream
 
-提供了readLine方法，一次可以读取一行字符。
+- 基于InputStream上几个read方法做了重写使方法更加高效读取。
+- 使用步骤和FileInputStream#read一致
 
-
-（3）BufferedOutputStream
-
-基于OutputStream上几个write方法做了重写使方法更加高效读取。
-
-使用步骤和FileOutputStream#write一致
-
-（4）BufferedInputStream
-
-基于InputStream上几个read方法做了重写使方法更加高效读取。
-
-使用步骤和FileInputStream#read一致
-
-（5）栗子
+栗子：
 
 ```kotlin
 /**
@@ -490,8 +483,8 @@ fun testCommonRead() {
  * 测试结果：1.pptx 文件在磁盘占10.7M,copy一份耗时39ms
  * */
 fun  testBufferReader(){
-    val src = File("/Users/zennioptical/JavaFilePractice/1.pptx")
-    val dest = File("/Users/zennioptical/JavaFilePractice/buffer.pptx")
+    val src = File("/Users/zb/JavaFilePractice/1.pptx")
+    val dest = File("/Users/zb/JavaFilePractice/buffer.pptx")
     if (!dest.exists()) {
         dest.createNewFile()
     }
@@ -523,21 +516,74 @@ fun  testBufferReader(){
 可见缓冲类的效率还是比非缓冲类的效率高的，同时我们可以提升数组的大小，来一次多读取点数据，这样也能提升效率。如吧字节数组的大小改为1024*10
 使用缓冲类耗时17ms，时间更快了点。
 
-###### 7、kt对文件的扩展
+###### 7、转换流
+
+主要涉及到两个类：
+
+InputStreamReader
+- public InputStreamReader(InputStream in)
+- public InputStreamReader(InputStream in, String charsetName)
+
+OutputStreamWriter
+- public OutputStreamWriter(OutputStream out)
+- public OutputStreamWriter(OutputStream out, Charset cs)
+
+当我们需要的内容都是文本字符数据时可以吧对应的流直接转换为字符流，更加高效。FileReader，FileWriter就是基于二者实现的。
+
+###### 8、文件压缩解压
+
+- ZipInputStream
+- ZipOutputStream
+
+一般用处不多，用到了再了解。
+
+###### 9、文件随机访问
+
+- RandomAccess
+
+一般应用在多线程下载，断点续传。用到了在了解。
+
+[可参考1](https://blog.csdn.net/qq_40100414/article/details/120179117)
+
+[可参考2](https://www.jianshu.com/p/1d2f957d6c95)
+
+###### 10、kt对文件的扩展
+
+- kotlin 针对流、文件等类提供了很多扩展方法，方便我们进行文件的读写。
+- kotlin 有个扩展方法use，任意继承自Closeable的类都可以使用，这个扩展会在合适时机自动帮助我们调用close。
+- kotlin还对网络（URL类）进行了扩展可以直接通过readText读取网页文本，通过readBytes拿到网络文件的字节数组。
+
+
+文本的读写
 
 ```kotlin
-/**
- * 使用BufferedReader来提升读取效率，这玩意提供了readLine方法每次可读一行。
- * 收获：
- * 1、BufferedReader 也是继承自Reader的在Reader的基础上提供了readLine方法
- * 2、kt的ReadWrite.kt 文件有很多扩展方法可以快速实现文件读写，如读文件直接readText读完
- * 3、kotlin 有个扩展方法use，任意继承自Closeable的类都可以使用，这个扩展会在合适时机自动帮助我们调用close。
- * */
+
+    // 直接写入本地，不存在文件时创建一个，存在时覆盖内容。
+    val file = File("/Users/zennioptical/JavaFilePractice/ktx.txt")
+    file.writeText("hello hello")
+    
+    //读取方式1：直接读全部内容
+    val text = file.readText()
+    println("读取内容:$text")
+    // 读取方式2：一行一行读取
+    file.readLines().forEach {
+        println(it)
+    }
 ```
 
 
+```kotlin
+    //直接读取百度网页text
+    println(URL("https://www.baidu.com").readText())
+    //直接把服务器上的文件写到本地 
+    val byteArray =  URL("http://g.hiphotos.baidu.com/image/pic/item/2e2eb9389b504fc2bbdd8ce9ebdde71191ef6d5f.jpg").readBytes()
+    File("/Users/zb/JavaFilePractice/1.png").write(byteArray)
+```
 
-###### 6、BufferedInputStream
+参考：https://blog.csdn.net/ldxlz224/article/details/97495232
+
+
+
 
 
 
