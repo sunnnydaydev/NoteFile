@@ -84,11 +84,10 @@ fun main() {
     val file = File( "/Users/zennioptical/JavaFilePractice/1.txt")
     val desc = File( "/Users/zennioptical/JavaFilePractice/Test/2.txt")
     file.renameTo(desc)
+    //JavaFilePractice目录下原有的1.txt会被重命名为2.txt,且被移动到JavaFilePractice/Test目录下
 }
 ```
-可以发现重命名操作也可以当做"移动"操作来使用。原本JavaFilePractice下的1.txt被移动到了JavaFilePractice/Test下且重命名了。
-
-还有一些常用的方法如下：
+可以发现重命名操作也可以当做"移动"操作来使用。 File还有一些常用的方法如下：
 
 - public boolean exists()文件是否存在
 - boolean isFile()是否是个普通的文件
@@ -168,7 +167,9 @@ fun fileWriterTest() {
  * FileReader栗子
  * 1、方法简介
  * public int read() throws IOException：
- * 从流中读取1个字符，返回这个字符代表的int类型值。因此我们想要得到字符一般需要自己再强转一下。
+ * 从流中读取1个字符，返回这个字符代表的int类型值。流中无数据时read方法返回-1.
+ * 2、注意
+ * 想要得到字符一般还需要自己强转一下，把int强转为char。
  * */
 fun fileReader() {
     val file = File("/Users/zb/JavaFilePractice/1.txt")
@@ -181,34 +182,38 @@ fun fileReader() {
     fr.close()
 }
 ```
-read()方法:从字符输入流读取一个字符，返回当前读取的字符。当输入流无数据时read()方法返回-1。这里需要再次说明下流的概念，否则上面的循环还不好理解，看图：
+这里需要再次说明下流的概念，否则上面的循环还不好理解，看图：
 
 ![](https://gitee.com/sunnnydaydev/my-pictures/raw/master/github/file/stream.png)
 
-这里应该就豁然开朗了，每次都"读走"首个数据，直到流中无数据此时read()返回-1
+这里应该就豁然开朗了，每次都"读走首个"数据，直到流中无数据此时read()返回-1
 
 read还有两个重载,首先看看三个参数的：
 
 ```kotlin
 /**
 方法：
-public int read(char cbuf[], int offset, int length) throws IOException {}
+    public int read(char cbuf[], int offset, int length) throws IOException {}
 
 功能：
-Reads characters into a portion of an array.
+    Reads characters into a portion of an array.
 
 参数：
-cbuf – Destination buffer
+    cbuf – Destination buffer
 
-offset – Offset at which to start storing characters
+    offset – Offset at which to start storing characters
 
-length – Maximum number of characters to read
+    length – Maximum number of characters to read
 
 返回值：
-The number of characters read, or -1 if the end of the stream has been reached
--------------------------------------------------------------------------------------------------
 
-点评：效率稍微比read() 好点，每次能够读取多个字符数据。
+     The number of characters read, or -1 if the end of the stream has been reached
+
+注意：
+
+1、read()、read(char cbuf[])方法的底层都是使用到了这个方法来进行读取的。
+   三者的差别：（1）一次性读取的字符个数不同
+             （2）返回值不同
 
 思考：BufferReader 每次读取一行数据， 使用read每次可以读取指定数据，当指定的数据大于行数的字符时 读取的效率是否比其高？
 
@@ -218,19 +223,18 @@ fun fileReader1() {
     val fr = FileReader(file)
     val buffer = CharArray(10)
     /**
-     * 注意这里第三个参数length：理论上每次从流中读取length个数据，read每次的返回值就是length，当流中数据小于length时
+     * 注意这里第三个参数length：理论上每次从流中读取length个数据放到cbuf中，read每次的返回值就是length，当流中数据小于length时
      * 此时返回值就是剩余字节个数。
      *
-     * 举个例子：如上我们申请的数组空间为10，每次从流中读取10个字符，read每次返回10。读取了n-1此后流中还剩3字符，则
-     * 第n次read的结果是3
+     * 举个例子：如上我们申请的数组空间为10，每次从流中读取10个字符，read每次返回10。读取了n-1此后流中还剩3字符，则第n次read的结果是3
+     * 
      *
      * */
     var count = fr.read(buffer,0,buffer.size)
     while (count != -1) {
         /***
-         * 注意写法，这里第三个参数为count，fileReader2栗子中相当于传递了buffer.size因此出现读取多余的空格。
-         * 这里若是传递buffer.size出现的结果也会很奇怪，多了几个字符。
-         * 若传buffer.size得到的结果是：落霞与孤鹜齐飞，秋水与长天一色。飞，秋水
+         * 注意写法，这里第三个参数传count，fileReader2栗子中错误写法注释相当于传递了buffer.size因此出现读取多余的空格。这里若是传递
+         * buffer.size出现的结果也会很奇怪，多了几个字符：落霞与孤鹜齐飞，秋水与长天一色。飞，秋水
          * */
         print(String(buffer, 0, count))
         count = fr.read(buffer)
@@ -247,8 +251,7 @@ fun fileReader1() {
 public int read(char cbuf[]) throws IOException {
 return read(cbuf, 0, cbuf.length);
 }
-可见底层直接调用了三个参数的方法，每次读取的个数为数组的大小。
-
+可见底层直接调用了三个参数的方法，每次往buffer数组中读数组size个数据。
  * */
 fun fileReader2() {
     val file = File("/Users/zb/JavaFilePractice/1.txt")
@@ -260,26 +263,128 @@ fun fileReader2() {
         count = fr.read(buffer)
     }
 /**
+    假如把这段代码注释了：
     var count = fr.read(buffer)
     while (count != -1) {
     print(String(buffer, 0, count))
     count = fr.read(buffer)
     }
-    错误写法：把上面这段注释了只使用下面的：
+    使用下面的代码：
     fr.read(buffer)
     println(String(buffer))
-    结果：落霞与孤鹜齐飞，秋水与长天一色。NULNULNUL（会有一些奇怪的nul特殊字符，由于粘在这里导致github readme解析失败，这我就手打出来了）
+    运行结果：落霞与孤鹜齐飞，秋水与长天一色。NULNULNUL（会有一些奇怪的nul特殊字符，由于粘在这里导致github readme解析失败，这我就手打出来了）
    
     这种方式读取的，受申请数组空间影响：
-    1、数组空间较小，读取数据不全
-    2、数组空间过大，浪费空间且多余的空间都是空数据，遍历char数组就会遍历出NUL特殊字符。
-
-    不建议写法。
+    1、数组空间较小，读取数据不全。
+    2、数组空间过大，浪费空间，虽然我们需要的数据被读出来了但同时还会读出多余空间所代表的违法字符"NUL"
+    
+    除非我们指定的数组空间正好是字符个数，才能无误的读出字符。不建议这种写法。
+    
+    留意： 可以留意下字节流的这种读法，那里可以精确的指定字节总数，因此那里无误。
 * */
     fr.close()
 }
 ```
-###### 3、BufferedReader
+
+###### 3、FileOutputStream
+
+```kotlin
+/**
+ * 字节输出流：
+ *     FileOutputStream
+ * 
+ * 构造的参数：
+ *     1、file对象
+ *     2、append：内容是追加还是覆盖，默认false覆盖，填true就是追加。
+ *     
+ * write方法：常见的也是三个方法
+ *     public void write(int b) throws IOException：把int强转byte写进文件
+ *     public void write(byte b[]) throws IOException：往文件写字节数组（数组size个字节写入文件）
+ *     public void write(byte b[], int off, int len) throws IOException：往文件写字节数组。
+ *     可见这三个方法与FileWriter的类似，只是FileWriter是字符数组，这里是字节数组。
+ *     
+ * 栗子如下：
+ *    使用输出流往本地写个文本文件。
+ * */
+fun fileOutputStream() {
+    val file = File("/Users/zb/JavaFilePractice/2.txt")
+    if (!file.exists()) {
+        file.createNewFile()
+    }
+    val fos = FileOutputStream(file, true)
+    // write提供了几个重载，写字节数组的比较常用。String 直接提供了字符串转字节数组很方便。
+    fos.write("滕王阁序1".toByteArray(Charsets.UTF_8))
+    fos.close()
+}
+```
+
+
+###### 4、FileInputStream
+
+```kotlin
+/**
+ * 字节输入流：
+ *     FileInputStream
+ *     
+ * 构造的参数：
+ *    file对象
+ *    
+ * read方法: 
+ *     public int read() throws IOException:从字节流中读取首个字节数据，返回这个字节代表的int值。
+ *     public int read(byte b[]) throws IOException:从字节流中读取b.length个字节，返回读取到的字节数目。
+ *     public int read(byte b[], int off, int len) throws IOException：从字节流中读取len个字节，返回读取到的字节数目。
+ * 
+ * 注意：三个read方法与FileReader的read方法很类似，只是这里为字节数组，FileReader的是字符数组。
+ * 
+ * 收获：
+ *     1、乱码问题原因，创建文件写字符内容使用的编码方式与读取文件解析字符内容使用的编码方式不一致。
+ *     2、文件的length 就是文件内容所占的字节数单位byte。不过这并不是操作系统上一个文件的真实大小，如新建一个空的文本文件
+ *        貌似在操作系统上占4k，这里我们也不care。
+ * 栗子：
+ *     如下
+ * */
+fun fileInputStream() {
+    val file = File("/Users/zb/JavaFilePractice/2.txt")
+    val fis = FileInputStream(file)
+    val byteArray = ByteArray(1024)
+    var byteCount = fis.read(byteArray) //返回值为一次性读取的字节个数
+    while (byteCount != -1) {
+        val string =
+            String(byteArray, 0, byteCount, Charsets.UTF_8)//若这为Charsets.ISO_8859_1 写时编码为utf-8 结果则乱码。
+        println(string)
+        byteCount = fis.read(byteArray)
+    }
+    fis.close()
+}
+```
+
+```kotlin
+
+/**
+ * 1、由于字节总数可以获得，所以我们能够直接创建字节总数大小的数组。然后直接使用read(byteArray)读取不会出现奇怪的现象。
+ *    对比FileReader理解下。
+ *    
+ * 2、这种写法假如文件大时如是个视频文件，一下申请的数组空间比较大可能会内存不足，最好申请 1024*n的空间进行循环读取好点。不建议这种写法
+ *    建议使用fileInputStream中的经典写法。
+ * */
+fun fileInputStream1() {
+    val file = File("/Users/zb/JavaFilePractice/2.txt")
+    val fis = FileInputStream(file)
+    val byteArray = ByteArray(file.length().toInt())//若file.length().toInt()+1 则结果有奇怪字符
+    fis.read(byteArray)
+    val string = String(byteArray, Charsets.UTF_8)
+    println(string)
+    fis.close()
+}
+```
+
+###### 5、缓冲类
+
+###### 6、缓冲与非缓冲效率对比
+
+###### 7、kt对文件的扩展
+
+BufferedReader
 
 ```kotlin
 /**
@@ -303,77 +408,8 @@ fun bufferedReader() {
 }
 ```
 
-###### 4、FileOutputStream
-
-```kotlin
-/**
- * 使用输出流往本地写个文本文件。
- * */
-fun fileOutputStream() {
-    val file = File("/Users/zb/JavaFilePractice/2.txt")
-    if (!file.exists()) {
-        file.createNewFile()
-    }
-    val fos = FileOutputStream(file, true) //默认覆盖，这里可控制追加内容。
-    // write提供了几个重载，写字节数组的比较常用。string 直接提供了字符串转字节数组。
-    fos.write("滕王阁序1".toByteArray(Charsets.UTF_8))
-    fos.close()
-}
-```
-
-###### 5、FileInputStream
-
-```kotlin
-/**
- * 收获：
- * 1、乱码问题原因 创建文件写字符内容使用的编码方式，与读取文件解析字符内容使用的编码方式不一致。
- * 2、文件的length 就是文件内容所占的字节数单位byte。不过这并不是操作系统上一个文件的真实大小，如新建一个空的文本文件
- * 貌似在操作系统上占4k，这里我们也不care。
- * */
-fun fileInputStream() {
-    val file = File("/Users/zennioptical/JavaFilePractice/2.txt")
-    println("文件大小:${file.length()}") // length 就是文件内容所占字节数。
-    val fis = FileInputStream(file)
-    val byteArray = ByteArray(1024)
-    var byteCount = fis.read(byteArray) //返回值为一次性读取的字节个数
-    while (byteCount != -1) {
-        println("data:$byteCount")
-        val string =
-            String(byteArray, 0, byteCount, Charsets.UTF_8)//若这为Charsets.ISO_8859_1 写时编码为utf-8 结果则乱码。
-        println(string)
-        byteCount = fis.read(byteArray)
-    }
-    fis.close()
-}
-```
-
-```kotlin
-
-/**
- * 1、由于字节总数可以获得，所以我们能够直接创建字节总数大小的数组。然后直接使用read(byteArray)读取不会出现奇怪的现象。
- * 对比FileReader理解下。
- * 2、这种写法加入文件大时如是个视频文件，一下申请的数组空间比较大，最好申请 1024*n的空间进行循环读取好点。不建议这种写法
- * 建议使用经典写法。
- *
- * */
-fun fileInputStream1() {
-    val file = File("/Users/zb/JavaFilePractice/2.txt")
-    val fis = FileInputStream(file)
-    val byteArray = ByteArray(file.length().toInt())//若file.length().toInt()+1 则结果有奇怪字符
-    fis.read(byteArray)
-    val string = String(byteArray, Charsets.UTF_8)
-    println(string)
-    fis.close()
-}
-```
-
 ###### 6、BufferedInputStream
 
-todo 整理
-
-```kotlin
-
-```
 
 
 
