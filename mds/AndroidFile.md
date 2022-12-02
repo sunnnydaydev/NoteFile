@@ -38,3 +38,7 @@ https://blog.csdn.net/baidu_36385172/article/details/79695308
 app支持自定义文件的打开，如 test.nb, 我们的app支持创建 *.nb格式的文件,也支持 *.nb 文件的打开。
 
 最常见的就是微信app点击这个文件直接支持打开。
+
+参考
+
+[官方文档](https://developer.android.google.cn/guide/topics/data?hl=zh-cn)

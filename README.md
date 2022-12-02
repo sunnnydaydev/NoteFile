@@ -12,4 +12,4 @@
 
 # Android File
 
-[Android File](./mds/2、AndroidFile.md)
+[Android File](./mds/AndroidFile.md)
