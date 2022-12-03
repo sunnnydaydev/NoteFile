@@ -1,5 +1,37 @@
 # Android File
 
+本篇文章的目标 ：
+
+一、把环境区分好
+
+常见操作系统的文件目录
+- window：图
+- mac：图
+- Android：图
+
+安卓的文件挂在节点图
+
+内部环境&外部环境物理上区分。
+
+二、熟悉下场景的api
+
+   fileDir 
+   cacheDir
+   等等，，，
+
+三、了解下安卓文件的变更流程
+
+    兼容写法~
+
+
+四、官方文档过一遍
+
+
+
+
+
+
+
 ###### 1、内部环境外部环境的区分
 
 先把概念梳理明白，弄明白安卓的文件目录。参考文章：解析Android内部存储、外部存储的区别
@@ -42,3 +74,5 @@ app支持自定义文件的打开，如 test.nb, 我们的app支持创建 *.nb�
 参考
 
 [官方文档](https://developer.android.google.cn/guide/topics/data?hl=zh-cn)
+
+[Android系统目录介绍](https://blog.csdn.net/abc6368765/article/details/125403212)
