@@ -1,13 +1,62 @@
 # Android File
 
-本篇文章的目标 ：
+# 常见操作系统的文件系统
 
-一、把环境区分好
+![](https://gitee.com/sunnnydaydev/my-pictures/raw/master/github/file/win.png)
 
-常见操作系统的文件目录
-- window：图
-- mac：图
-- Android：图
+Windows的文件系统有盘符的概念，在安装系统时可以划分几个盘如常见的C盘、D盘、E盘。每一个盘就是一个独立的根目录，这点和Linux文件系统差异比较明显。
+因此在操作文件时我们通常会见到这样的absolute path
+```kotlin
+   val file1 = File("D://xxx1")
+   val file2 = File("F://xxx2")
+```
+
+![](https://gitee.com/sunnnydaydev/my-pictures/raw/master/github/file/mac.png)
+
+Mac的文件系统中只有一个根目录，根目录下有一系列文件夹，其中最常使用的就是Users目录了。一般我们需要在"根目录/Users/用户名/"路径下进行文件操作，因此
+在操作文件时常会见到这样的absolute path
+
+```kotlin
+ val file1 = File("/Users/zb/JavaFilePractice/1.txt")
+ val file1 = File("/Users/zb/JavaFilePractice/2.txt")
+```
+
+那么android操作系统的文件目录是怎样的呢？这点可以通过adb命令来查看，但是通过AS提供的Devices File Explorer看着更加清晰：
+
+![](https://gitee.com/sunnnydaydev/my-pictures/raw/master/github/file/android.png)
+
+Android是基于Linux操作系统的，安卓中也是只存在一个根目录。
+
+# Android的内部环境与外部环境
+
+Android的文件系统真的操蛋，内部环境外部环境牵涉到api把人搞得真乱。
+
+起初大家可能和我有一样理解，手机自带的硬盘为内部存储，sd卡为外部存储。然后接触到了安卓常见的file api：
+
+```kotlin
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        println("cacheDir：$cacheDir")
+        println("externalCacheDir:$externalCacheDir")
+    }
+}
+```
+I/System.out: cacheDir：/data/user/0/com.sunnyday.notefile/cache
+I/System.out: externalCacheDir:/storage/emulated/0/Android/data/com.sunnyday.notefile/cache
+
+此时心里形成了一个概念data/data/pkg/目录下对应内部存储环境，/storage/emulated/0/对应的为外部存储环境。但是同时还存在着些疑惑：
+
+- 为啥外部环境没有内存卡也能使用？
+- sdCard目录又是啥玩意，这个不应该是内存卡目录吗？
+- mnt啥玩意，里面为啥也有个sdCard目录
+- 内部存储环境不应该像电脑那样我们随便存吗？为啥只能存自己app的数据？
+- 安卓不是说操作外部环境目录要申请读写权限，为啥我操作externalCacheDir目录下文件不要读写权限也能成功？
+
+一大堆疑问出来了，，，，，，
+
+
 
 安卓的文件挂在节点图
 
