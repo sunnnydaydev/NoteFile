@@ -11,7 +11,7 @@ Windows的文件系统有盘符的概念，在安装系统时可以划分几个�
    val file2 = File("F://xxx2")
 ```
 
-![](https://gitee.com/sunnnydaydev/my-pictures/raw/master/github/file/mac.png)
+![](https://gitee.com/sunnnydaydev/my-pictures/blob/master/github/file/mac.png)
 
 Mac的文件系统中只有一个根目录，根目录下有一系列文件夹，其中最常使用的就是Users目录了。一般我们需要在"根目录/Users/用户名/"路径下进行文件操作，因此
 在操作文件时常会见到这样的absolute path
@@ -44,6 +44,7 @@ class MainActivity : AppCompatActivity() {
 }
 ```
 I/System.out: cacheDir：/data/user/0/com.sunnyday.notefile/cache
+
 I/System.out: externalCacheDir:/storage/emulated/0/Android/data/com.sunnyday.notefile/cache
 
 此时心里形成了一个概念data/data/pkg/目录下对应内部存储环境，/storage/emulated/0/对应的为外部存储环境。但是同时还存在着些疑惑：
@@ -56,7 +57,7 @@ I/System.out: externalCacheDir:/storage/emulated/0/Android/data/com.sunnyday.not
 
 一大堆疑问出来了，，，，，，
 
-
+todo
 
 安卓的文件挂在节点图
 
